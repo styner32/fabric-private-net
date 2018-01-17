@@ -7,7 +7,7 @@ class Home extends Component {
     return (
       <div className="jumbotron">
         <Header />
-        <h1> Home page </h1>
+        <h1> Home </h1>
         <User />
       </div>
     );
