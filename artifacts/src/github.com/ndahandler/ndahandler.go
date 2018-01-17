@@ -31,7 +31,7 @@ type SimpleChaincode struct {
 }
 
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
-	logger.Info("########### example_cc0 Init ###########")
+	logger.Info("########### NDAHandler Init ###########")
 
 	_, args := stub.GetFunctionAndParameters()
 	var A, B string    // Entities
@@ -67,7 +67,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 
 // Transaction makes payment of X units from A to B
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
-	logger.Info("########### example_cc0 Invoke ###########")
+	logger.Info("########### NDAHandler Invoke ###########")
 
 	function, args := stub.GetFunctionAndParameters()
 
@@ -86,8 +86,53 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.move(stub, args)
 	}
 
-	logger.Errorf("Unknown action, check the first argument, must be one of 'delete', 'query', or 'move'. But got: %v", args[0])
-	return shim.Error(fmt.Sprintf("Unknown action, check the first argument, must be one of 'delete', 'query', or 'move'. But got: %v", args[0]))
+	if function == "create" {
+		// Create doc
+		return t.create(stub, args)
+	}
+
+	if function == "getdoc" {
+		// Read doc
+		return t.getdoc(stub, args)
+	}
+
+	logger.Errorf("Unknown action, check the first argument, must be one of 'delete', 'query', 'move', 'create' or 'getdoc'. But got: %v", args[0])
+	return shim.Error(fmt.Sprintf("Unknown action, check the first argument, must be one of 'delete', 'query', 'move', 'create' or 'getdoc'. But got: %v", args[0]))
+}
+
+func (t *SimpleChaincode) create(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	title := args[0]
+	doc := args[1]
+
+	logger.info("title", title)
+	logger.info("doc", doc)
+
+	if err := stub.PutState(title, []byte(doc)); err != nil {
+		return shim.Error(err.Error())
+	}
+
+	return shim.Success(nil)
+}
+
+func (t *SimpleChaincode) getdoc(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	title := args[1]
+	result, err := stub.GetState(title)
+
+	logger.info("result", result)
+
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	return shim.Success(result)
 }
 
 func (t *SimpleChaincode) move(stub shim.ChaincodeStubInterface, args []string) pb.Response {
