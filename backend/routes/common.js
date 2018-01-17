@@ -1,10 +1,23 @@
 const getErrorMessage = function(field) {
 	var response = {
     error: 'invalid_data',
-		error_description: `'${field}' field is missing or Invalid in the request`
+		error_description: `"${field}" field is invalid`
 	};
 
 	return response;
 }
 
-module.exports = getErrorMessage;
+const delayPromise = function(duration) {
+  return function(...args) {
+    return new Promise(function(resolve, reject) {
+      setTimeout(function() {
+        resolve(...args);
+      }, duration);
+    });
+  };
+}
+
+module.exports = {
+  getErrorMessage,
+  delayPromise
+}

@@ -31,7 +31,7 @@ var allEventhubs = [];
 //
 //Attempt to send a request to the orderer with the sendCreateChain method
 //
-var joinChannel = function(channelName, peers, username, org) {
+var joinChannel = function(channelName, peers, org) {
 	// on process exit, always disconnect the event hub
 	var closeConnections = function(isSuccess) {
 		if (isSuccess) {
@@ -48,9 +48,8 @@ var joinChannel = function(channelName, peers, username, org) {
 			}
 		}
 	};
-	//logger.debug('\n============ Join Channel ============\n')
-	logger.info(util.format(
-		'Calling peers in organization "%s" to join the channel', org));
+
+	logger.info(util.format('Calling peers in organization "%s" to join the channel', org));
 
 	var client = helper.getClientForOrg(org);
 	var channel = helper.getChannelForOrg(org);
@@ -104,10 +103,9 @@ var joinChannel = function(channelName, peers, username, org) {
 		let sendPromise = channel.joinChannel(request);
 		return Promise.all([sendPromise].concat(eventPromises));
 	}, (err) => {
-		logger.error('Failed to enroll user \'' + username + '\' due to error: ' +
-			err.stack ? err.stack : err);
-		throw new Error('Failed to enroll user \'' + username +
-			'\' due to error: ' + err.stack ? err.stack : err);
+    const msg = 'failed to get genesis block: ' + err;
+		logger.error(msg);
+		throw new Error(msg);
 	}).then((results) => {
 		logger.debug(util.format('Join Channel R E S P O N S E : %j', results));
 		if (results[0] && results[0][0] && results[0][0].response && results[0][0]

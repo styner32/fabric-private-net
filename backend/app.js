@@ -15,7 +15,7 @@
  */
 'use strict';
 var log4js = require('log4js');
-var logger = log4js.getLogger('SampleWebApp');
+var logger = log4js.getLogger('NDAapp');
 var express = require('express');
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
@@ -67,7 +67,7 @@ app.use(expressJWT({
 
 app.use(bearerToken());
 app.use(function(req, res, next) {
-	if (req.originalUrl.indexOf('/users') >= 0 || req.originalUrl.indexOf('/orgs') >= 0) {
+	if (req.originalUrl.match(/^\/orgs\/\w+\/users/) || req.originalUrl === '/orgs') {
 		return next();
 	}
 
@@ -161,7 +161,7 @@ app.post('/channels/:channelName/peers', function(req, res) {
 		return;
 	}
 
-  join.joinChannel(channelName, peers, req.username, req.orgname)
+  join.joinChannel(channelName, peers, req.orgname)
     .then(function(message) {
       res.send(message);
     });
@@ -376,7 +376,7 @@ app.get('/channels/:channelName', function(req, res) {
 app.get('/chaincodes', function(req, res) {
 	var peer = req.query.peer;
 	var installType = req.query.type;
-	//TODO: add Constnats
+	// TODO: add Constnats
 	if (installType === 'installed') {
 		logger.debug(
 			'================ GET INSTALLED CHAINCODES ======================');

@@ -177,6 +177,7 @@ var getChainInfo = function(peer, username, org) {
 		return 'Failed to query with error:' + err.stack ? err.stack : err;
 	});
 };
+
 //getInstalledChaincodes
 var getInstalledChaincodes = function(peer, type, username, org) {
 	var target = buildTarget(peer, org);
@@ -233,8 +234,7 @@ var getChannels = function(peer, username, org) {
 		return client.queryChannels(target);
 	}, (err) => {
 		logger.info('Failed to get submitter "' + username + '"');
-		return 'Failed to get submitter "' + username + '". Error: ' + err.stack ?
-			err.stack : err;
+		return 'Failed to get submitter "' + username + '". Error: ' + err.stack ?  err.stack : err;
 	}).then((response) => {
 		if (response) {
 			logger.debug('<<< channels >>>');
@@ -249,8 +249,7 @@ var getChannels = function(peer, username, org) {
 			return 'response_payloads is null';
 		}
 	}, (err) => {
-		logger.error('Failed to send query due to error: ' + err.stack ? err.stack :
-			err);
+		logger.error('Failed to send query due to error: ' + err.stack ? err.stack : err);
 		return 'Failed to send query due to error: ' + err.stack ? err.stack : err;
 	}).catch((err) => {
 		logger.error('Failed to query with error:' + err.stack ? err.stack : err);
