@@ -46,11 +46,14 @@ class User extends Component {
     }
 
     renderOrgs() {
+        const promise = this.props.dispatch(userActions.retrieveOrgs());
+        promise.then((orgs) => console.log("orgs", orgs));
         // return this.props.dispatch(userActions.retrieveOrgs())
-        return ["sg", "au", "ch"]
-            .map(it => {
-                return (<option value={it}>{it}</option>);
-            })
+        //     .then((orgs) => console.log('orgs', orgs));
+        // return ["sg", "au", "ch"]
+        //     .map(it => {
+        //         return (<option value={it}>{it}</option>);
+        //     })
     }
 
     render() {
