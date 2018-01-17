@@ -108,8 +108,8 @@ func (t *SimpleChaincode) create(stub shim.ChaincodeStubInterface, args []string
 	title := args[0]
 	doc := args[1]
 
-	logger.info("title", title)
-	logger.info("doc", doc)
+	logger.Infof("title: %s", title)
+	logger.Infof("doc: %s", doc)
 
 	if err := stub.PutState(title, []byte(doc)); err != nil {
 		return shim.Error(err.Error())
@@ -119,14 +119,12 @@ func (t *SimpleChaincode) create(stub shim.ChaincodeStubInterface, args []string
 }
 
 func (t *SimpleChaincode) getdoc(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	if len(args) != 2 {
+	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
 
-	title := args[1]
+	title := args[0]
 	result, err := stub.GetState(title)
-
-	logger.info("result", result)
 
 	if err != nil {
 		return shim.Error(err.Error())

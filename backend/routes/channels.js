@@ -7,7 +7,7 @@ const invoke = require('../app/invoke-transaction.js');
 const helper = require('../app/helper.js');
 const query = require('../app/query.js');
 
-const chaincodeName = 'ndahandler2';
+const chaincodeName = 'ndahandler9';
 const chaincodeVersion = 'v1';
 
 router.get('/', function(req, res) {
@@ -61,7 +61,7 @@ router.get('/:channel_name/docs', function(req, res) {
   const channelName = req.params.channel_name;
   const functionName = 'getdoc';
 
-  invoke.invokeChaincode(null, channelName, chaincodeName, functionName, ['getdoc', 'doc'], req.username, req.orgname)
+  query.queryChaincode('peer1', channelName, chaincodeName, ['doc'], functionName, req.username, req.orgname)
     .then(function(message) {
       console.log('====> message', message);
       res.status(200);
