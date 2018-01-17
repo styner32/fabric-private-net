@@ -12,6 +12,7 @@ class User extends Component {
         this.onChangeNewUser = this.onChangeNewUser.bind(this);
         this.state = {
             items: [],
+            orgs: [],
             newUser: ""
         };
     }
@@ -24,9 +25,8 @@ class User extends Component {
 
     onAdd() {
         const {instance, account, newUser} = this.state;
-        const {dispatch} = this.props;
 
-        dispatch(userActions.create('sunjin', 'org1'));
+        this.props.dispatch(userActions.createUser('sunjin', 'org1'));
     }
 
     onChangeNewUser(e) {
@@ -43,6 +43,14 @@ class User extends Component {
                        value="+"/>
             </li>
         );
+    }
+
+    renderOrgs() {
+        // return this.props.dispatch(userActions.retrieveOrgs())
+        return ["sg", "au", "ch"]
+            .map(it => {
+                return (<option value={it}>{it}</option>);
+            })
     }
 
     render() {
@@ -65,9 +73,7 @@ class User extends Component {
                     />
                     <select>
                         <option value="--">-Select Organization-</option>
-                        <option value="au">AU</option>
-                        <option value="ch">CH</option>
-                        <option value="sg">SG</option>
+                        {this.renderOrgs()}
                     </select>
                     <input type="submit"
                            onClick={this.onAdd}
