@@ -19,8 +19,9 @@ var path = require('path');
 var config = require('../config.json');
 var helper = require('./helper.js');
 var logger = helper.getLogger('Create-Channel');
+
 //Attempt to send a request to the orderer with the sendCreateChain method
-var createChannel = function(channelName, channelConfigPath, username, orgName) {
+var createChannel = function(channelName, channelConfigPath, orgName) {
 	logger.debug('\n====== Creating Channel \'' + channelName + '\' ======\n');
 	var client = helper.getClientForOrg(orgName);
 	var channel = helper.getChannelForOrg(orgName);
@@ -48,8 +49,9 @@ var createChannel = function(channelName, channelConfigPath, username, orgName) 
 		// send to orderer
 		return client.createChannel(request);
 	}, (err) => {
-		logger.error('Failed to enroll user \''+username+'\'. Error: ' + err);
-		throw new Error('Failed to enroll user \''+username+'\'' + err);
+    const msg = `Failed to create a channel ${err}`;
+		logger.error(msg);
+		throw new Error(msg);
 	}).then((response) => {
 		logger.debug(' response ::%j', response);
 		if (response && response.status === 'SUCCESS') {
@@ -60,13 +62,11 @@ var createChannel = function(channelName, channelConfigPath, username, orgName) 
 			};
 		  return response;
 		} else {
-			logger.error('\n!!!!!!!!! Failed to create the channel \'' + channelName +
-				'\' !!!!!!!!!\n\n');
+			logger.error('\n!!!!!!!!! Failed to create the channel \'' + channelName + '\' !!!!!!!!!\n\n');
 			throw new Error('Failed to create the channel \'' + channelName + '\'');
 		}
 	}, (err) => {
-		logger.error('Failed to initialize the channel: ' + err.stack ? err.stack :
-			err);
+		logger.error('Failed to initialize the channel: ' + err.stack ? err.stack : err);
 		throw new Error('Failed to initialize the channel: ' + err.stack ? err.stack : err);
 	});
 };
