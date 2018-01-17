@@ -59,7 +59,7 @@ router.post('/:org_name/users', function(req, res) {
     });
 });
 
-// Register and enroll user
+// Create or join channel
 router.post('/:org_name/channels', function(req, res) {
   const orgName = req.params.org_name;
   const org = helper.ORGS[orgName];
@@ -97,6 +97,32 @@ router.post('/:org_name/channels', function(req, res) {
       // 3. Join channel
       return join.joinChannel(channelName, peers, orgName);
     })
+    .then(function(response) {
+      res.json(response);
+    })
+    .catch(function(err) {
+      res.status(403).json(err);
+    });
+});
+
+// Create or join channel
+router.put('/:org_name/channels/:channel_name', function(req, res) {
+  const orgName = req.params.org_name;
+  const org = helper.ORGS[orgName];
+  const username = req.username;
+  const channelName = req.params.channel_name;
+
+  if (!org) {
+		res.json(common.getErrorMessage('org_name'));
+		return;
+  }
+
+  if (!channelName) {
+		res.json(common.getErrorMessage('channel_name'));
+		return;
+  }
+
+  join.joinChannel(channelName, Object.keys(org.peers), orgName)
     .then(function(response) {
       res.json(response);
     })
