@@ -32,7 +32,6 @@ require('./config.js');
 var hfc = require('fabric-client');
 
 var helper = require('./app/helper.js');
-var channels = require('./app/create-channel.js');
 var join = require('./app/join-channel.js');
 var install = require('./app/install-chaincode.js');
 var instantiate = require('./app/instantiate-chaincode.js');
@@ -43,6 +42,7 @@ var port = process.env.PORT || hfc.getConfigSetting('port');
 
 // routes
 const orgs = require('./routes/orgs');
+const channels = require('./routes/channels');
 
 // middlewares
 app.options('*', cors());
@@ -106,6 +106,7 @@ function getErrorMessage(field) {
 }
 
 app.use('/orgs', orgs);
+app.use('/channels', channels);
 
 // Register and enroll user
 app.post('/users', function(req, res) {
@@ -390,19 +391,4 @@ app.get('/chaincodes', function(req, res) {
 		res.send(message);
 	});
 });
-// Query to fetch channels
-app.get('/channels', function(req, res) {
-	logger.debug('================ GET CHANNELS ======================');
-	logger.debug('peer: ' + req.query.peer);
-	var peer = req.query.peer;
-	if (!peer) {
-		res.json(getErrorMessage('\'peer\''));
-		return;
-	}
 
-	query.getChannels(peer, req.username, req.orgname)
-	.then(function(
-		message) {
-		res.send(message);
-	});
-});

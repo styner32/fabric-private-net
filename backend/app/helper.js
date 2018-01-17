@@ -55,6 +55,8 @@ for (let key in ORGS) {
 	}
 }
 
+console.log(channels);
+
 function setupPeers(channel, org, client) {
 	for (let key in ORGS[org].peers) {
 		let data = fs.readFileSync(path.join(__dirname, ORGS[org].peers[key]['tls_cacerts']));
