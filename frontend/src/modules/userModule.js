@@ -39,22 +39,6 @@ export const {
     ORGS_RETRIEVE_FAILURE
 );
 
-
-// export function createUser(username, orgName) {
-//     return (dispatch) => {
-//         dispatch({type: USER_CREATE_REQUEST});
-//         return api.postUser(username, orgName)
-//             .then((postedItem) => {
-//                 console.log('done', postedItem);
-//                 dispatch({type: USER_CREATE_SUCCESS, item: postedItem});
-//             })
-//             .catch((e) => {
-//                 console.log('failed', e);
-//                 dispatch({type: USER_CREATE_FAILURE, msg: e});
-//             });
-//     };
-// }
-
 export const fetchUserEpic = (action$, store) => {
     return action$.ofType(USER_CREATE)
         .mergeMap(action => {

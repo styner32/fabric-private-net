@@ -3,24 +3,8 @@ import { Button, Form, Grid, Header, Image, Dropdown, Segment } from 'semantic-u
 import _ from 'lodash';
 import {connect} from 'react-redux';
 import {userCreate} from '../modules/userModule';
+import {orgsRetrieve} from '../modules/orgsModule';
 
-const orgOptions = [
-    {
-        key: "sg",
-        value: "sg",
-        text: "Singapore"
-    },
-    {
-        key: "au",
-        value: "au",
-        text: "Australia"
-    },
-    {
-        key: "ch",
-        value: "ch",
-        text: "China"
-    }
-];
 
 class LoginForm extends Component {
     constructor(props, context) {
@@ -36,12 +20,20 @@ class LoginForm extends Component {
         };
     }
 
+    componentDidMount(){
+        this.props.orgsRetrieve();
+    }
+
     _onAdd() {
         const {instance, account, newUser} = this.state;
         this.props.userCreate({username: 'sunjin', orgName: 'org1'});
     }
 
     render(){
+        if (this.props.orgsLoading){
+            return <div>Loading...</div>
+        }
+
         return (
             <div className='login-form'>
                 {/*
@@ -75,7 +67,7 @@ class LoginForm extends Component {
                                     placeholder="Select Organization"
                                     fluid
                                     selection
-                                    options={orgOptions}
+                                    options={this.props.orgs}
                                 />
                                 <br/>
                                 <Button color='blue'
@@ -94,11 +86,15 @@ class LoginForm extends Component {
 }
 
 const mapActionCreators = {
-    userCreate: credential => userCreate(credential)
+    userCreate: credential => userCreate(credential),
+    orgsRetrieve: () => orgsRetrieve()
 };
 
 const mapStateToProps = (state) => {
-    return {};
+    return {
+        orgs: state.orgs.items,
+        orgsLoading: state.orgs.isLoading
+    };
 };
 
 export default connect(mapStateToProps, mapActionCreators)(LoginForm);
