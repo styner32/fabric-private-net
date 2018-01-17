@@ -1,49 +1,31 @@
+import axios from "axios";
 const API_HOST = "http://localhost:4000";
 
-class FabricConnector {
-    postUser(username, orgName) {
-        return new Promise((resolve, reject) => {
-            fetch(`${API_HOST}/users`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username,
-                    orgName
-                })
-            })
-                .then(response => response.json())
-                .then((json) => {
-                    console.log(json);
-                    resolve(json);
-                })
-                .catch((e) => {
-                    console.log('error', e);
-                    reject();
-                });
-        });
-    }
+export const postUser = (username, orgName) =>
+    axios.post(`${API_HOST}/users`, {
+        username,
+        orgName
+    });
 
-    getOrgs() {
-        return new Promise((resolve, reject) => {
-            fetch(`${API_HOST}/orgs`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(response => response.json())
-                .then((json) => {
-                    console.log(json);
-                    resolve(json);
-                })
-                .catch((e) => {
-                    console.log('error', e);
-                    reject();
-                });
-        });
-    }
-}
 
-export default new FabricConnector();
+
+export const createUser = (credential) =>
+    axios.post(`${API_HOST}/orgs/${credential.orgName}/users`, credential);
+
+
+
+export const getOrgs = () => axios.get(`${API_HOST}/orgs`);
+
+export default {
+    postUser,
+    createUser,
+    getOrgs
+};
+
+//
+// GET  /orgs
+// POST /orgs/{}/users
+// POST /orgs/{}/channels
+// GET  /channels
+// PUT  /orgs/{}/channels/{}
+// GET  /channels/{}/docs

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
 import {connect} from 'react-redux';
-import * as userActions from '../actions/userActions';
+import * as userActions from '../modules/userModule';
 
 class User extends Component {
     constructor(props, context) {
