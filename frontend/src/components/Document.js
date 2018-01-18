@@ -4,11 +4,13 @@ import {Dropdown, Header, Segment, List, Image, Button} from "semantic-ui-react"
 import {Document, Page} from "react-pdf";
 import {channelsGet, channelsDocsPost} from "../modules/channelsModule";
 import ReactLoading from 'react-loading';
+import axios, {post} from 'axios';
+import {CHANNELS_DOCS} from "../common/endpoints";
 
 class DocumentComponent extends Component {
 
 
-    constructor(props){
+    constructor(props) {
         super(props);
         this.onSubmit = this._onSubmit.bind(this);
         this.handleChange = this._handleChange.bind(this);
@@ -17,11 +19,12 @@ class DocumentComponent extends Component {
             fileName: "upload file here",
             fileLoaded: false,
             numPages: null,
-            channel: null
+            channel: null,
+            fileUploaded: false
         };
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.props.channelsGet();
     }
 
@@ -33,18 +36,35 @@ class DocumentComponent extends Component {
         });
     };
 
-    _onSubmit() {
+    _onSubmit(e) {
+        e.preventDefault(); // Stop form submit
 
         let data = new FormData();
         data.append('file', this.state.file);
         data.append('name', this.state.fileName);
-        data.append('files', this.state.file);
-        data.append('fields', "something");
 
-        this.props.channelsDocsPost({
-            file: data,
-            channel: this.state.channel
-        });
+        const config = {
+            headers: {
+                'content-type': 'multipart/form-data',
+                "Authorization": `Bearer ${this.props.token}`
+            }
+        };
+        post(CHANNELS_DOCS(this.state.channel), data, config)
+            .then(res => {
+                console.error("success upload %o", res);
+                this.setState({
+                    fileUploaded: true
+                })
+            })
+            .catch(res => {
+                console.error("failed upload %o", res)
+            })
+
+
+        // this.props.channelsDocsPost({
+        //     file: data,
+        //     channel: this.state.channel
+        // });
     }
 
     _handleChange(field, value) {
@@ -60,8 +80,8 @@ class DocumentComponent extends Component {
         const {file, numPages} = this.state;
         const {orgs, channels, orgsLoading, channelsLoading} = this.props;
 
-        if (orgsLoading || channelsLoading){
-            return <ReactLoading type={"bubbles"} color={"blue"} />
+        if (orgsLoading || channelsLoading) {
+            return <ReactLoading type={"bubbles"} color={"blue"}/>
 
         }
 
@@ -70,11 +90,11 @@ class DocumentComponent extends Component {
                 <div className="ui borderless fixed blue inverted pointing menu">
                     <div className="ui container">
                         <a className="header active item" href="blog.html#">Home</a>
-                        <a className="item" href="blog.html#">New feature</a>
+                        {/*<a className="item" href="blog.html#">New feature</a>
                         <a className="item" href="blog.html#">Press</a>
                         <a className="item" href="blog.html#">
                             New hires
-                        </a><a className="item" href="blog.html#">About</a>
+                        </a><a className="item" href="blog.html#">About</a>*/}
                     </div>
                 </div>
                 <div className="ui grid container">
@@ -88,11 +108,7 @@ class DocumentComponent extends Component {
                     </div>
                     <div className="row" id="article">
                         <div className="eleven wide column">
-                            {!this.state.fileLoaded &&
-                            <div className="Example__container__load">
-                                <label htmlFor="file">Load from file:</label>&nbsp;
-                                <input type="file" onChange={this.onFileChange}/>
-                            </div>}
+
 
                             {this.state.fileLoaded &&
                             <Document file={file} onLoadSuccess={this.onDocumentLoadSuccess}>
@@ -103,43 +119,56 @@ class DocumentComponent extends Component {
 
                         </div>
                         <div className="four wide right floated column">
-                            <Segment secondary>
-                                <Header as="h4">
-                                    Organization
-                                </Header>
-                                <div>
-                                    <Dropdown
-                                        placeholder="Select Organization"
-                                        fluid
-                                        selection
-                                        onChange={(event, {value}) => this.handleChange("orgName", value)}
-                                        options={orgs}
-                                    />
-                                </div>
-                            </Segment>
-                            <Segment secondary>
-                                <Header as="h4">
-                                    Channels
-                                </Header>
-                                <div>
-                                    <Dropdown
-                                        placeholder="Select Channels"
-                                        fluid
-                                        selection
-                                        onChange={(event, {value}) => this.handleChange("channel", value)}
-                                        options={channels}
-                                    />
-                                </div>
-                            </Segment>
-                            <Segment>
-                                <Button color='blue'
-                                        fluid size='large'
-                                        onClick={this.onSubmit}
-                                >
-                                    Upload
-                                </Button>
-                            </Segment>
-                           {/* <Segment>
+                            <form onSubmit={this.onSubmit}>
+                                <Segment>
+                                    <Header as="h4">
+                                        File Upload
+                                    </Header>
+                                    <div className="Example__container__load">
+                                        <label htmlFor="file">Load from file:</label>&nbsp;
+                                        <input type="file" onChange={this.onFileChange}/>
+                                    </div>
+                                </Segment>
+                                <Segment secondary>
+                                    <Header as="h4">
+                                        Organization
+                                    </Header>
+                                    <div>
+                                        <Dropdown
+                                            placeholder="Select Organization"
+                                            fluid
+                                            selection
+                                            onChange={(event, {value}) => this.handleChange("orgName", value)}
+                                            options={orgs}
+                                        />
+                                    </div>
+                                </Segment>
+                                <Segment secondary>
+                                    <Header as="h4">
+                                        Channels
+                                    </Header>
+                                    <div>
+                                        <Dropdown
+                                            placeholder="Select Channels"
+                                            fluid
+                                            selection
+                                            onChange={(event, {value}) => this.handleChange("channel", value)}
+                                            options={channels}
+                                        />
+                                    </div>
+                                </Segment>
+                                {
+                                    !this.state.fileUploaded &&
+                                    <Segment>
+                                        <Button color='blue'
+                                                fluid size='large'
+                                                type="submit"
+                                        >
+                                            Upload
+                                        </Button>
+                                    </Segment>
+                                }
+                                {/* <Segment>
                                 <Header as="h4">
                                     History
                                 </Header>
@@ -176,6 +205,7 @@ class DocumentComponent extends Component {
                                     </List.Item>
                                 </List>
                             </Segment>*/}
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -195,7 +225,8 @@ const mapStateToProps = (state) => {
         channels: state.channels.items,
         orgsLoading: state.orgs.isLoading,
         channelsLoading: state.channels.isLoading,
-        isLoggedIn: state.users.isLoggedIn
+        isLoggedIn: state.users.isLoggedIn,
+        token: state.users.creds.token
     };
 };
 
