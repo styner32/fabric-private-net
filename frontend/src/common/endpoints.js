@@ -9,6 +9,7 @@ export const ORGS_USERS = (orgId) => `${constants.API_HOST}/orgs/${orgId}/users`
 //authenticated
 //     ~GET  /channels~
 export const CHANNELS = `${constants.API_HOST}/channels`;
+export const CHANNELS_DOCS = (channelId) => `${constants.API_HOST}/channels/${channelId}/docs`;
 //     ~POST /orgs/:org_name/channels~
 //     ~PUT  /orgs/:org_name/channels/:channel_name~
 export const ORGS_CHANNELS = (orgId, channelId) => `${constants.API_HOST}/orgs/${orgId}/channels${channelId ? "/"+channelId : ""}`;

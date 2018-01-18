@@ -1,42 +1,25 @@
 import React, {Component} from "react";
 import {connect} from 'react-redux';
-import {Dropdown, Header, Segment, List, Image} from "semantic-ui-react";
+import {Dropdown, Header, Segment, List, Image, Button} from "semantic-ui-react";
 import {Document, Page} from "react-pdf";
-import {channelsGet} from "../modules/channelsModule";
-
-const orgOptions = [
-    {
-        key: "sg",
-        value: "sg",
-        text: "Singapore"
-    },
-    {
-        key: "au",
-        value: "au",
-        text: "Australia"
-    },
-    {
-        key: "ch",
-        value: "ch",
-        text: "China"
-    }
-];
-
-const channelOptions = [
-    {
-        key: "ch1",
-        value: "ch1",
-        text: "Channel1"
-    }
-];
+import {channelsGet, channelsDocsPost} from "../modules/channelsModule";
+import ReactLoading from 'react-loading';
 
 class DocumentComponent extends Component {
-    state = {
-        file: "./sample.pdf",
-        fileName: "upload file here",
-        fileLoaded: false,
-        numPages: null
-    };
+
+
+    constructor(props){
+        super(props);
+        this.onSubmit = this._onSubmit.bind(this);
+        this.handleChange = this._handleChange.bind(this);
+        this.state = {
+            file: "./sample.pdf",
+            fileName: "upload file here",
+            fileLoaded: false,
+            numPages: null,
+            channel: null
+        };
+    }
 
     componentDidMount(){
         this.props.channelsGet();
@@ -50,6 +33,24 @@ class DocumentComponent extends Component {
         });
     };
 
+    _onSubmit() {
+
+        let data = new FormData();
+        data.append('file', this.state.file);
+        data.append('name', this.state.fileName);
+        data.append('files', this.state.file);
+        data.append('fields', "something");
+
+        this.props.channelsDocsPost({
+            file: data,
+            channel: this.state.channel
+        });
+    }
+
+    _handleChange(field, value) {
+        this.setState({[field]: value});
+    }
+
     onDocumentLoadSuccess = ({numPages}) =>
         this.setState({
             numPages
@@ -57,6 +58,12 @@ class DocumentComponent extends Component {
 
     render() {
         const {file, numPages} = this.state;
+        const {orgs, channels, orgsLoading, channelsLoading} = this.props;
+
+        if (orgsLoading || channelsLoading){
+            return <ReactLoading type={"bubbles"} color={"blue"} />
+
+        }
 
         return (
             <div>
@@ -105,7 +112,8 @@ class DocumentComponent extends Component {
                                         placeholder="Select Organization"
                                         fluid
                                         selection
-                                        options={orgOptions}
+                                        onChange={(event, {value}) => this.handleChange("orgName", value)}
+                                        options={orgs}
                                     />
                                 </div>
                             </Segment>
@@ -118,11 +126,20 @@ class DocumentComponent extends Component {
                                         placeholder="Select Channels"
                                         fluid
                                         selection
-                                        options={channelOptions}
+                                        onChange={(event, {value}) => this.handleChange("channel", value)}
+                                        options={channels}
                                     />
                                 </div>
                             </Segment>
                             <Segment>
+                                <Button color='blue'
+                                        fluid size='large'
+                                        onClick={this.onSubmit}
+                                >
+                                    Upload
+                                </Button>
+                            </Segment>
+                           {/* <Segment>
                                 <Header as="h4">
                                     History
                                 </Header>
@@ -158,7 +175,7 @@ class DocumentComponent extends Component {
                                         </List.Content>
                                     </List.Item>
                                 </List>
-                            </Segment>
+                            </Segment>*/}
                         </div>
                     </div>
                 </div>
@@ -169,12 +186,15 @@ class DocumentComponent extends Component {
 
 const mapActionCreators = (dispatch) => ({
     channelsGet: () => dispatch(channelsGet()),
+    channelsDocsPost: (payload) => dispatch(channelsDocsPost(payload)),
 });
 
 const mapStateToProps = (state) => {
     return {
         orgs: state.orgs.items,
+        channels: state.channels.items,
         orgsLoading: state.orgs.isLoading,
+        channelsLoading: state.channels.isLoading,
         isLoggedIn: state.users.isLoggedIn
     };
 };

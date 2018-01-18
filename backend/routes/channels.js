@@ -25,9 +25,12 @@ router.post('/:channel_name/docs', function(req, res) {
   const channelName = req.params.channel_name;
   const functionName = 'create';
 
+  console.log(req);
+
   const form = new formidable.IncomingForm();
   form.parse(req, function(err, fields, files) {
     console.log('files', files);
+    console.log('fields', fields);
     const oldpath = files.file.path,
           file_size = files.file.size,
           file_ext = files.file.name.split('.').pop(),

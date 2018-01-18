@@ -22,7 +22,10 @@ export default {
     get: (endpoint, headers, store) => Observable.ajax
         .get(endpoint, Object.assign({}, defaultHeaders(store.getState().users.creds.token), headers))
         .map(x => x.response),
-    post: (endpoint, body, headers, store) => Observable.ajax
-        .get(endpoint, Object.assign({}, defaultHeaders(store.getState().users.creds.token), headers))
-        .map(x => x.response)
+    post: (endpoint, body, headers, store) => {
+        const finalHeaders = Object.assign({}, defaultHeaders(store.getState().users.creds.token), headers)
+        return Observable.ajax
+            .post(endpoint, body, finalHeaders)
+            .map(x => x.response)
+    }
 }
