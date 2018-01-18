@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {Dropdown, Header, Segment, List, Image, Button} from "semantic-ui-react";
 import {Document, Page} from "react-pdf";
 import {channelsGet, channelsDocsPost} from "../modules/channelsModule";
+import {orgsChannelsPost} from "../modules/orgsModule";
 import ReactLoading from 'react-loading';
 import axios, {post} from 'axios';
 import {CHANNELS_DOCS} from "../common/endpoints";
@@ -19,13 +20,16 @@ class DocumentComponent extends Component {
             fileName: "no file",
             fileLoaded: false,
             numPages: null,
-            channel: null,
+            channel: "mychannel",
             fileUploaded: false
         };
     }
 
     componentDidMount() {
         this.props.channelsGet();
+        this.props.orgsChannelsPost({
+            orgName: this.props.organization.value,
+        });
     }
 
     onFileChange = event => {
@@ -139,13 +143,7 @@ class DocumentComponent extends Component {
                                         Organization
                                     </Header>
                                     <div>
-                                        <Dropdown
-                                            placeholder="Select Organization"
-                                            fluid
-                                            selection
-                                            onChange={(event, {value}) => this.handleChange("orgName", value)}
-                                            options={orgs}
-                                        />
+                                        <p>{this.props.organization.text}</p>
                                     </div>
                                 </Segment>
                                 <Segment secondary>
@@ -154,6 +152,7 @@ class DocumentComponent extends Component {
                                     </Header>
                                     <div>
                                         <Dropdown
+                                            value={this.state.channel}
                                             placeholder="Select Channels"
                                             fluid
                                             selection
@@ -222,11 +221,12 @@ class DocumentComponent extends Component {
 const mapActionCreators = (dispatch) => ({
     channelsGet: () => dispatch(channelsGet()),
     channelsDocsPost: (payload) => dispatch(channelsDocsPost(payload)),
+    orgsChannelsPost: (payload) => dispatch(orgsChannelsPost(payload)),
 });
 
 const mapStateToProps = (state) => {
     return {
-        orgs: state.orgs.items,
+        organization: state.users.organization,
         channels: state.channels.items,
         orgsLoading: state.orgs.isLoading,
         channelsLoading: state.channels.isLoading,

@@ -13,23 +13,44 @@ import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/catch";
-import {ORGS} from "../common/endpoints";
+import {ORGS_CHANNELS, ORGS} from "../common/endpoints";
+import rw from "../common/requestWrapper";
 
 
 export const ORGS_GET = "ORGS_GET";
 export const ORGS_GET_SUCCESS = "ORGS_GET_SUCCESS";
 export const ORGS_GET_FAILURE = "ORGS_GET_FAILURE";
+export const ORGS_CHANNELS_POST = "ORGS_CHANNELS_POST";
+export const ORGS_CHANNELS_POST_SUCCESS = "ORGS_CHANNELS_POST_SUCCESS";
+export const ORGS_CHANNELS_POST_FAILURE = "ORGS_CHANNELS_POST_FAILURE";
 
 export const {
     orgsGet,
     orgsGetSuccess,
-    orgsGetFailure
+    orgsGetFailure,
+    orgsChannelsPost,
+    orgsChannelsPostSuccess,
+    orgsChannelsPostFailure
 } = createActions(
     ORGS_GET,
     ORGS_GET_SUCCESS,
-    ORGS_GET_FAILURE
+    ORGS_GET_FAILURE,
+    ORGS_CHANNELS_POST,
+    ORGS_CHANNELS_POST_SUCCESS,
+    ORGS_CHANNELS_POST_FAILURE
 );
 
+
+export const joinChannelEpic = (action$, store) => {
+    return action$.ofType(ORGS_CHANNELS_POST)
+        .mergeMap(action => {
+            console.log("fetchOrgEpic ==> %o", action);
+            return  rw
+                .post(ORGS_CHANNELS(action.payload.orgName, action.payload.channel), {}, {}, store)
+                .map(response => orgsChannelsPostSuccess(response))
+                .catch(val => Observable.of(orgsChannelsPostFailure(val)));
+        });
+};
 
 export const fetchOrgEpic = (action$, store) => {
     return action$.ofType(ORGS_GET)
@@ -48,7 +69,7 @@ export const fetchOrgEpic = (action$, store) => {
                         key: "sg",
                         value: "org2",
                         text: "Singapore"
-                    },
+                    }
                 ]))
                 .map(response => orgsGetSuccess(response))
                 .catch(val => Observable.of(orgsGetFailure(val)));
@@ -57,7 +78,9 @@ export const fetchOrgEpic = (action$, store) => {
 
 const initialState = {
     isLoading: true,
-    items: []
+    isJoiningChannel: false,
+    items: [],
+    channelJoined: null
 };
 
 const reducer = handleActions(
@@ -66,6 +89,11 @@ const reducer = handleActions(
         ORGS_GET_SUCCESS: (state, action) => ({
             isLoading: false,
             items: action.payload
+        }),
+        ORGS_CHANNELS_POST: (state, action) => Object.assign({...state}, {isJoiningChannel: true}),
+        ORGS_CHANNELS_POST_SUCCESS: (state, action) => ({
+            isJoiningChannel: false,
+            channelJoined: action.payload
         })
     },
     initialState

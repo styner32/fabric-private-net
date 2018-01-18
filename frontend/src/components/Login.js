@@ -36,7 +36,7 @@ class LoginForm extends Component {
     }
 
     _onAdd() {
-        this.props.orgsUsersPost({...this.state});
+        this.props.orgsUsersPost({...this.state, organization: this.props.orgs.find(o => o.value === this.state.orgName)});
     }
 
     render() {
@@ -78,6 +78,7 @@ class LoginForm extends Component {
                                     placeholder="Select Organization"
                                     fluid
                                     selection
+                                    value={this.state.orgName}
                                     onChange={(event, {value}) => this.handleChange("orgName", value)}
                                     options={this.props.orgs}
                                 />

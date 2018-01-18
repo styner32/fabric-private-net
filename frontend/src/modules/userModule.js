@@ -53,6 +53,7 @@ const reducer = handleActions(
     {
         ORGS_USERS_POST: (state, action) => ({
             ...state,
+            organization: action.payload.organization,
             orgsUsersPosting: true,
             isLoggedIn: false
         }),
