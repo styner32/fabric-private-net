@@ -1,10 +1,9 @@
 import React, {Component} from 'react'
-import { Button, Form, Grid, Header, Image, Dropdown, Segment } from 'semantic-ui-react'
-import _ from 'lodash';
+import {Button, Dropdown, Form, Grid, Header, Segment} from 'semantic-ui-react'
 import {connect} from 'react-redux';
-import {userCreate} from '../modules/userModule';
-import {orgsRetrieve} from '../modules/orgsModule';
-
+import {orgsUsersPost} from '../modules/userModule';
+import {orgsGet} from '../modules/orgsModule';
+import {push} from "react-router-redux";
 
 class LoginForm extends Component {
     constructor(props, context) {
@@ -12,25 +11,36 @@ class LoginForm extends Component {
 
         // this.onUpvote = this.onUpvote.bind(this);
         this.onAdd = this._onAdd.bind(this);
+        this.handleChange = this._handleChange.bind(this);
         // this.onChangeNewUser = this.onChangeNewUser.bind(this);
         this.state = {
-            items: [],
-            orgs: [],
-            newUser: ""
+            username: "",
+            orgName: "org1",
         };
     }
 
-    componentDidMount(){
-        this.props.orgsRetrieve();
+    componentDidMount() {
+        this.props.orgsGet();
+    }
+
+    componentWillUpdate(nextProps) {
+        const {isLoggedIn, goToDashboard} = nextProps;
+        if (isLoggedIn) {
+            console.log("I am logged in");
+            goToDashboard();
+        }
+    }
+
+    _handleChange(field, value) {
+        this.setState({[field]: value});
     }
 
     _onAdd() {
-        const {instance, account, newUser} = this.state;
-        this.props.userCreate({username: 'sunjin', orgName: 'org1'});
+        this.props.orgsUsersPost({...this.state});
     }
 
-    render(){
-        if (this.props.orgsLoading){
+    render() {
+        if (this.props.orgsLoading) {
             return <div>Loading...</div>
         }
 
@@ -50,10 +60,10 @@ class LoginForm extends Component {
     `}</style>
                 <Grid
                     textAlign='center'
-                    style={{ height: '100%' }}
+                    style={{height: '100%'}}
                     verticalAlign='middle'
                 >
-                    <Grid.Column style={{ maxWidth: 450 }}>
+                    <Grid.Column style={{maxWidth: 450}}>
                         <Header as='h2' color='blue' textAlign='center'>
                             {' '}Log in
                         </Header>
@@ -62,11 +72,13 @@ class LoginForm extends Component {
                                 <Form.Input
                                     fluid
                                     placeholder="username"
+                                    onChange={(event, {value}) => this.handleChange("username", value)}
                                 />
                                 <Dropdown
                                     placeholder="Select Organization"
                                     fluid
                                     selection
+                                    onChange={(event, {value}) => this.handleChange("orgName", value)}
                                     options={this.props.orgs}
                                 />
                                 <br/>
@@ -85,15 +97,17 @@ class LoginForm extends Component {
     }
 }
 
-const mapActionCreators = {
-    userCreate: credential => userCreate(credential),
-    orgsRetrieve: () => orgsRetrieve()
-};
+const mapActionCreators = (dispatch) => ({
+    orgsUsersPost: credential => dispatch(orgsUsersPost(credential)),
+    orgsGet: () => dispatch(orgsGet()),
+    goToDashboard: () => dispatch(push("/home"))
+});
 
 const mapStateToProps = (state) => {
     return {
         orgs: state.orgs.items,
-        orgsLoading: state.orgs.isLoading
+        orgsLoading: state.orgs.isLoading,
+        isLoggedIn: state.users.isLoggedIn
     };
 };
 

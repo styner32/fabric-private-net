@@ -1,4 +1,3 @@
-import api from '../utils/fabricConnector';
 import {createActions, handleActions} from "redux-actions";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/dom/ajax";
@@ -14,60 +13,62 @@ import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/catch";
+import {ORGS} from "../common/endpoints";
 
-export const ORGS_RETRIEVE = "ORGS_RETRIEVE";
-export const ORGS_RETRIEVE_SUCCESS = "ORGS_RETRIEVE_SUCCESS";
-export const ORGS_RETRIEVE_FAILURE = "ORGS_RETRIEVE_FAILURE";
+
+export const ORGS_GET = "ORGS_GET";
+export const ORGS_GET_SUCCESS = "ORGS_GET_SUCCESS";
+export const ORGS_GET_FAILURE = "ORGS_GET_FAILURE";
 
 export const {
-    orgsRetrieve,
-    orgsRetrieveSuccess,
-    orgsRetrieveFailure
+    orgsGet,
+    orgsGetSuccess,
+    orgsGetFailure
 } = createActions(
-    ORGS_RETRIEVE,
-    ORGS_RETRIEVE_SUCCESS,
-    ORGS_RETRIEVE_FAILURE
+    ORGS_GET,
+    ORGS_GET_SUCCESS,
+    ORGS_GET_FAILURE
 );
 
+
 export const fetchOrgEpic = (action$, store) => {
-    return action$.ofType(ORGS_RETRIEVE)
+    return action$.ofType(ORGS_GET)
         .mergeMap(action => {
             console.log("fetchOrgEpic ==> %o", action);
-            return Observable.fromPromise(api.getOrgs())
+            return Observable.ajax
+                .get(ORGS)
+                .map(x => x.response)
                 .map(response => ([
                     {
+                        key: "ch",
+                        value: "org1",
+                        text: "Switzerland"
+                    },
+                    {
                         key: "sg",
-                        value: "sg",
+                        value: "org2",
                         text: "Singapore"
                     },
-                    {
-                        key: "au",
-                        value: "au",
-                        text: "Australia"
-                    },
-                    {
-                        key: "ch",
-                        value: "ch",
-                        text: "China"
-                    }
                 ]))
-                .map(response => orgsRetrieveSuccess(response))
-                .catch(val => Observable.of(orgsRetrieveFailure(val)));
+                .map(response => orgsGetSuccess(response))
+                .catch(val => Observable.of(orgsGetFailure(val)));
         });
+};
+
+const initialState = {
+    isLoading: true,
+    items: []
 };
 
 const reducer = handleActions(
     {
-        ORGS_RETRIEVE: (state, action) => Object.assign({...state}, {isLoading: true}),
-        ORGS_RETRIEVE_SUCCESS: (state, action) => ({
+        ORGS_GET: (state, action) => Object.assign({...state}, {isLoading: true}),
+        ORGS_GET_SUCCESS: (state, action) => ({
             isLoading: false,
             items: action.payload
         })
     },
-    {
-        isLoading: true,
-        items: []
-    }
+    initialState
 );
 
 export default reducer;

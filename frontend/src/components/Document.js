@@ -1,7 +1,8 @@
 import React, {Component} from "react";
-
+import {connect} from 'react-redux';
 import {Dropdown, Header, Segment, List, Image} from "semantic-ui-react";
 import {Document, Page} from "react-pdf";
+import {channelsGet} from "../modules/channelsModule";
 
 const orgOptions = [
     {
@@ -36,6 +37,10 @@ class DocumentComponent extends Component {
         fileLoaded: false,
         numPages: null
     };
+
+    componentDidMount(){
+        this.props.channelsGet();
+    }
 
     onFileChange = event => {
         this.setState({
@@ -162,4 +167,16 @@ class DocumentComponent extends Component {
     }
 }
 
-export default DocumentComponent;
+const mapActionCreators = (dispatch) => ({
+    channelsGet: () => dispatch(channelsGet()),
+});
+
+const mapStateToProps = (state) => {
+    return {
+        orgs: state.orgs.items,
+        orgsLoading: state.orgs.isLoading,
+        isLoggedIn: state.users.isLoggedIn
+    };
+};
+
+export default connect(mapStateToProps, mapActionCreators)(DocumentComponent);

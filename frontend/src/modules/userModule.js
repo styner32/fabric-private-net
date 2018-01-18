@@ -1,4 +1,3 @@
-import api from '../utils/fabricConnector';
 import {createActions, handleActions} from "redux-actions";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/dom/ajax";
@@ -15,52 +14,61 @@ import "rxjs/add/operator/filter";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/catch";
 
-export const USER_CREATE = 'USER_CREATE';
-export const USER_CREATE_SUCCESS = 'USER_CREATE_SUCCESS';
-export const USER_CREATE_FAILURE = 'USER_CREATE_FAILURE';
+import {ORGS_USERS} from "../common/endpoints"
 
-export const ORGS_RETRIEVE = "ORGS_RETRIEVE";
-export const ORGS_RETRIEVE_SUCCESS = "ORGS_RETRIEVE_SUCCESS";
-export const ORGS_RETRIEVE_FAILURE = "ORGS_RETRIEVE_FAILURE";
+export const ORGS_USERS_POST = "ORGS_USERS_POST";
+export const ORGS_USERS_POST_SUCCESS = "ORGS_USERS_POST_SUCCESS";
+export const ORGS_USERS_POST_FAILURE = "ORGS_USERS_POST_FAILURE";
 
 export const {
-    userCreate,
-    userCreateSuccess,
-    userCreateFailure,
-    orgsRetrieve,
-    orgsRtrieveSuccess,
-    orgsRetrieveFailure
+    orgsUsersPost,
+    orgsUsersPostSuccess,
+    orgsUsersPostFailure
 } = createActions(
-    USER_CREATE,
-    USER_CREATE_SUCCESS,
-    USER_CREATE_FAILURE,
-    ORGS_RETRIEVE,
-    ORGS_RETRIEVE_SUCCESS,
-    ORGS_RETRIEVE_FAILURE
+    ORGS_USERS_POST,
+    ORGS_USERS_POST_SUCCESS,
+    ORGS_USERS_POST_FAILURE
 );
 
-export const fetchUserEpic = (action$, store) => {
-    return action$.ofType(USER_CREATE)
+export const orgsUserPostEpic = (action$, store) => {
+    return action$.ofType(ORGS_USERS_POST)
         .mergeMap(action => {
-            console.log("fetchUserEpic ==> %o", action);
-            return Observable.fromPromise(api.postUser({...action.payload}))
-                .map(response => userCreateSuccess(response))
-                .catch(val => Observable.of(userCreateFailure(val)));
+            console.log("orgsUserPostEpic ==> %o", action);
+            return Observable.ajax
+                .post(ORGS_USERS(action.payload.orgName), action.payload)
+                .map(x => x.response)
+                .map(response => orgsUsersPostSuccess(response))
+                .catch(val => Observable.of(orgsUsersPostFailure(val)));
         });
+};
+
+
+const initialState = {
+    orgsUsersPosting: false,
+    isLoggedIn: false,
+    creds: {}
 };
 
 const reducer = handleActions(
     {
-        USER_CREATE: (state, action) => ({
+        ORGS_USERS_POST: (state, action) => ({
             ...state,
-            org: action.payload
+            orgsUsersPosting: true,
+            isLoggedIn: false
         }),
-        USER_CREATE_SUCCESS: (state, action) => ({
+        ORGS_USERS_POST_SUCCESS: (state, action) => ({
             ...state,
-            result: Object.assign({}, action.item)
+            orgsUsersPosting: false,
+            isLoggedIn: true,
+            creds: Object.assign({}, action.payload)
+        }),
+        ORGS_USERS_POST_FAILURE: (state, action) => ({
+            ...state,
+            orgsUsersPosting: false,
+            creds: {}
         })
     },
-    {}
+    initialState
 );
 
 export default reducer;
