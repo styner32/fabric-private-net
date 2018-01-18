@@ -16,7 +16,7 @@ class DocumentComponent extends Component {
         this.handleChange = this._handleChange.bind(this);
         this.state = {
             file: "./sample.pdf",
-            fileName: "upload file here",
+            fileName: "no file",
             fileLoaded: false,
             numPages: null,
             channel: null,
@@ -100,9 +100,7 @@ class DocumentComponent extends Component {
                 <div className="ui grid container">
                     <div className="row" id="page-header">
                         <div className="ui basic segment">
-                            <h1 className="ui sub header">
-                                Document viewer
-                            </h1>
+                            <h1 className="ui sub header">Document Viewer</h1>
                             <span>{this.state.fileName}</span>
                         </div>
                     </div>
@@ -110,12 +108,19 @@ class DocumentComponent extends Component {
                         <div className="eleven wide column">
 
 
-                            {this.state.fileLoaded &&
-                            <Document file={file} onLoadSuccess={this.onDocumentLoadSuccess}>
-                                {Array.from(new Array(numPages), (el, index) => (
-                                    <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
-                                ))}
-                            </Document>}
+                            {
+                                this.state.fileLoaded &&
+                                <Document file={file} onLoadSuccess={this.onDocumentLoadSuccess}>
+                                {
+                                    Array.from(
+                                        new Array(numPages),
+                                        (el, index) => (
+                                            <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
+                                        )
+                                    )
+                                }
+                                </Document>
+                            }
 
                         </div>
                         <div className="four wide right floated column">
