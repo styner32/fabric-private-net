@@ -7,21 +7,20 @@ import ReactLoading from 'react-loading';
 
 class DocumentComponent extends Component {
 
-
-    constructor(props){
+    constructor(props) {
         super(props);
         this.onSubmit = this._onSubmit.bind(this);
         this.handleChange = this._handleChange.bind(this);
         this.state = {
             file: "./sample.pdf",
-            fileName: "upload file here",
+            fileName: "no file",
             fileLoaded: false,
             numPages: null,
             channel: null
         };
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.props.channelsGet();
     }
 
@@ -69,20 +68,14 @@ class DocumentComponent extends Component {
             <div>
                 <div className="ui borderless fixed blue inverted pointing menu">
                     <div className="ui container">
-                        <a className="header active item" href="blog.html#">Home</a>
-                        <a className="item" href="blog.html#">New feature</a>
-                        <a className="item" href="blog.html#">Press</a>
-                        <a className="item" href="blog.html#">
-                            New hires
-                        </a><a className="item" href="blog.html#">About</a>
+                        <a className="header active item">Home</a>
+                        <a className="item">About</a>
                     </div>
                 </div>
                 <div className="ui grid container">
                     <div className="row" id="page-header">
                         <div className="ui basic segment">
-                            <h1 className="ui sub header">
-                                Document viewer
-                            </h1>
+                            <h1 className="ui sub header">Document Viewer</h1>
                             <span>{this.state.fileName}</span>
                         </div>
                     </div>
@@ -94,19 +87,24 @@ class DocumentComponent extends Component {
                                 <input type="file" onChange={this.onFileChange}/>
                             </div>}
 
-                            {this.state.fileLoaded &&
-                            <Document file={file} onLoadSuccess={this.onDocumentLoadSuccess}>
-                                {Array.from(new Array(numPages), (el, index) => (
-                                    <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
-                                ))}
-                            </Document>}
+                            {
+                                this.state.fileLoaded &&
+                                <Document file={file} onLoadSuccess={this.onDocumentLoadSuccess}>
+                                {
+                                    Array.from(
+                                        new Array(numPages),
+                                        (el, index) => (
+                                            <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
+                                        )
+                                    )
+                                }
+                                </Document>
+                            }
 
                         </div>
                         <div className="four wide right floated column">
                             <Segment secondary>
-                                <Header as="h4">
-                                    Organization
-                                </Header>
+                                <Header as="h4">Organization</Header>
                                 <div>
                                     <Dropdown
                                         placeholder="Select Organization"
@@ -118,9 +116,7 @@ class DocumentComponent extends Component {
                                 </div>
                             </Segment>
                             <Segment secondary>
-                                <Header as="h4">
-                                    Channels
-                                </Header>
+                                <Header as="h4">Channels</Header>
                                 <div>
                                     <Dropdown
                                         placeholder="Select Channels"
@@ -132,50 +128,14 @@ class DocumentComponent extends Component {
                                 </div>
                             </Segment>
                             <Segment>
-                                <Button color='blue'
-                                        fluid size='large'
-                                        onClick={this.onSubmit}
+                                <Button
+                                    color='blue'
+                                    fluid size='large'
+                                    onClick={this.onSubmit}
                                 >
                                     Upload
                                 </Button>
                             </Segment>
-                           {/* <Segment>
-                                <Header as="h4">
-                                    History
-                                </Header>
-                                <List>
-                                    <List.Item>
-                                        <Image
-                                            avatar
-                                            src="/assets/images/avatar/small/rachel.png"
-                                        />
-                                        <List.Content>
-                                            <List.Header as="a">Rachel</List.Header>
-                                            <List.Description>Uploaded</List.Description>
-                                        </List.Content>
-                                    </List.Item>
-                                    <List.Item>
-                                        <Image
-                                            avatar
-                                            src="/assets/images/avatar/small/lindsay.png"
-                                        />
-                                        <List.Content>
-                                            <List.Header as="a">Lindsay</List.Header>
-                                            <List.Description>Rejected</List.Description>
-                                        </List.Content>
-                                    </List.Item>
-                                    <List.Item>
-                                        <Image
-                                            avatar
-                                            src="/assets/images/avatar/small/matthew.png"
-                                        />
-                                        <List.Content>
-                                            <List.Header as="a">Matthew</List.Header>
-                                            <List.Description>Approved</List.Description>
-                                        </List.Content>
-                                    </List.Item>
-                                </List>
-                            </Segment>*/}
                         </div>
                     </div>
                 </div>
