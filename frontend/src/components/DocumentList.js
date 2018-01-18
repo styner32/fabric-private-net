@@ -2,20 +2,18 @@ import React, {Component} from "react";
 import {connect} from 'react-redux';
 import {Dropdown, Header, Segment, List, Image, Button} from "semantic-ui-react";
 import {Document, Page} from "react-pdf";
-import {channelsGet, channelsDocsPost} from "../modules/channelsModule";
+import {channelsGet, channelsDocsPost, channelsDocsGet} from "../modules/channelsModule";
 import {orgsChannelsPost} from "../modules/orgsModule";
 import ReactLoading from 'react-loading';
 import axios, {post} from 'axios';
 import {CHANNELS_DOCS} from "../common/endpoints";
 import {Link} from "react-router-dom";
 
-class DocumentComponent extends Component {
+class DocumentList extends Component {
 
 
     constructor(props) {
         super(props);
-        this.onSubmit = this._onSubmit.bind(this);
-        this.handleChange = this._handleChange.bind(this);
         this.state = {
             file: "./sample.pdf",
             fileName: "no file",
@@ -27,54 +25,11 @@ class DocumentComponent extends Component {
     }
 
     componentDidMount() {
-        this.props.channelsGet();
-        this.props.orgsChannelsPost({
-            orgName: this.props.organization.value,
+        this.props.channelsDocsGet({
+            channel: "mychannel"
         });
     }
 
-    onFileChange = event => {
-        this.setState({
-            file: event.target.files[0],
-            fileName: event.target.files[0].name,
-            fileLoaded: true
-        });
-    };
-
-    _onSubmit(e) {
-        e.preventDefault(); // Stop form submit
-
-        let data = new FormData();
-        data.append('file', this.state.file);
-        data.append('name', this.state.fileName);
-
-        const config = {
-            headers: {
-                'content-type': 'multipart/form-data',
-                "Authorization": `Bearer ${this.props.token}`
-            }
-        };
-        post(CHANNELS_DOCS(this.state.channel), data, config)
-            .then(res => {
-                console.error("success upload %o", res);
-                this.setState({
-                    fileUploaded: true
-                })
-            })
-            .catch(res => {
-                console.error("failed upload %o", res)
-            })
-
-
-        // this.props.channelsDocsPost({
-        //     file: data,
-        //     channel: this.state.channel
-        // });
-    }
-
-    _handleChange(field, value) {
-        this.setState({[field]: value});
-    }
 
     onDocumentLoadSuccess = ({numPages}) =>
         this.setState({
@@ -83,9 +38,9 @@ class DocumentComponent extends Component {
 
     render() {
         const {file, numPages} = this.state;
-        const {orgs, channels, orgsLoading, channelsLoading} = this.props;
+        const {docs, isLoadingDocs} = this.props;
 
-        if (orgsLoading || channelsLoading) {
+        if (isLoadingDocs || docs === null) {
             return <ReactLoading type={"bubbles"} color={"blue"}/>
 
         }
@@ -96,8 +51,7 @@ class DocumentComponent extends Component {
                     <div className="ui container">
                         <Link className={`header item ${ location.pathname === '/home/documents'? "active": "" }`} to="/home/documents"> Upload </Link>
                         <Link className={`header item ${ location.pathname === '/home/documentList'? "active": "" }`} to="/home/documentList" >Doc List </Link>
-                        {/*<a className="item" href="blog.html#">New feature</a>
-                        <a className="item" href="blog.html#">Press</a>
+                        {/*<a className="item" href="blog.html#">Press</a>
                         <a className="item" href="blog.html#">
                             New hires
                         </a><a className="item" href="blog.html#">About</a>*/}
@@ -112,11 +66,7 @@ class DocumentComponent extends Component {
                     </div>
                     <div className="row" id="article">
                         <div className="eleven wide column">
-
-
-                            {
-                                this.state.fileLoaded &&
-                                <Document file={file} onLoadSuccess={this.onDocumentLoadSuccess}>
+                            <Document file={docs.base64} onLoadSuccess={this.onDocumentLoadSuccess}>
                                 {
                                     Array.from(
                                         new Array(numPages),
@@ -125,55 +75,20 @@ class DocumentComponent extends Component {
                                         )
                                     )
                                 }
-                                </Document>
-                            }
+                            </Document>
 
                         </div>
                         <div className="four wide right floated column">
-                            <form onSubmit={this.onSubmit}>
+                            <div>
                                 <Segment>
                                     <Header as="h4">
-                                        File Upload
+                                       File info
                                     </Header>
                                     <div className="Example__container__load">
-                                        <label htmlFor="file">Load from file:</label>&nbsp;
-                                        <input type="file" onChange={this.onFileChange}/>
+                                        "some info"
                                     </div>
                                 </Segment>
-                                <Segment secondary>
-                                    <Header as="h4">
-                                        Organization
-                                    </Header>
-                                    <div>
-                                        <p>{this.props.organization.text}</p>
-                                    </div>
-                                </Segment>
-                                <Segment secondary>
-                                    <Header as="h4">
-                                        Channels
-                                    </Header>
-                                    <div>
-                                        <Dropdown
-                                            value={this.state.channel}
-                                            placeholder="Select Channels"
-                                            fluid
-                                            selection
-                                            onChange={(event, {value}) => this.handleChange("channel", value)}
-                                            options={channels}
-                                        />
-                                    </div>
-                                </Segment>
-                                {
-                                    !this.state.fileUploaded &&
-                                    <Segment>
-                                        <Button color='blue'
-                                                fluid size='large'
-                                                type="submit"
-                                        >
-                                            Upload
-                                        </Button>
-                                    </Segment>
-                                }
+
                                 {/* <Segment>
                                 <Header as="h4">
                                     History
@@ -211,7 +126,7 @@ class DocumentComponent extends Component {
                                     </List.Item>
                                 </List>
                             </Segment>*/}
-                            </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -222,19 +137,18 @@ class DocumentComponent extends Component {
 
 const mapActionCreators = (dispatch) => ({
     channelsGet: () => dispatch(channelsGet()),
-    channelsDocsPost: (payload) => dispatch(channelsDocsPost(payload)),
+    channelsDocsGet: (payload) => dispatch(channelsDocsGet(payload)),
     orgsChannelsPost: (payload) => dispatch(orgsChannelsPost(payload)),
 });
 
 const mapStateToProps = (state) => {
     return {
         organization: state.users.organization,
-        channels: state.channels.items,
         orgsLoading: state.orgs.isLoading,
-        channelsLoading: state.channels.isLoading,
-        isLoggedIn: state.users.isLoggedIn,
+        isLoadingDocs: state.channels.isLoadingDocs,
+        docs: state.channels.docs,
         token: state.users.creds.token
     };
 };
 
-export default connect(mapStateToProps, mapActionCreators)(DocumentComponent);
+export default connect(mapStateToProps, mapActionCreators)(DocumentList);

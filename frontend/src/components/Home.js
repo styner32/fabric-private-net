@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {Redirect, Route, Switch} from 'react-router-dom';
 import Document from "./Document";
+import DocumentList from "./DocumentList";
 import About from "./About";
 
 // class Home extends Component {
@@ -28,6 +29,7 @@ const Home = ({isLoggedIn}) => {
         <Switch>
             <Route path="/home/about" component={About}/>
             <Route path="/home/documents" component={Document}/>
+            <Route path="/home/documentList" component={DocumentList}/>
             <Redirect to="/home/documents"/>
         </Switch>
     )
