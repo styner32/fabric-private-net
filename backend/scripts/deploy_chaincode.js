@@ -11,8 +11,8 @@ for (let org in helper.ORGS) {
 
 const peers = ['peer1', 'peer2'];
 const chaincodePath = 'github.com/ndahandler';
-const chaincodeName = 'ndahandler9';
-const chaincodeVersion = 'v1';
+const chaincodeName = 'ndahandler';
+const chaincodeVersion = 'v0';
 
 const installPromises = [];
 for (let org of orgs) {

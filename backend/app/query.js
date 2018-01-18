@@ -39,29 +39,23 @@ var queryChaincode = function(peer, channelName, chaincodeName, args, fcn, usern
 		return channel.queryByChaincode(request, target);
 	}, (err) => {
 		logger.info('Failed to get submitter \''+username+'\'');
-		return 'Failed to get submitter \''+username+'\'. Error: ' + err.stack ? err.stack :
-			err;
+		return 'Failed to get submitter \''+username+'\'. Error: ' + err.stack ? err.stack : err;
 	}).then((response_payloads) => {
 		if (response_payloads) {
 			for (let i = 0; i < response_payloads.length; i++) {
-				logger.info(args[0]+' now has ' + response_payloads[i].toString('utf8') +
-					' after the move');
-				return args[0]+' now has ' + response_payloads[i].toString('utf8') +
-					' after the move';
+				logger.info(args[0]+' now has ' + response_payloads[i].toString('utf8') + ' after the move');
+				return response_payloads[i].toString('utf8');
 			}
 		} else {
 			logger.error('response_payloads is null');
 			return 'response_payloads is null';
 		}
 	}, (err) => {
-		logger.error('Failed to send query due to error: ' + err.stack ? err.stack :
-			err);
+		logger.error('Failed to send query due to error: ' + err.stack ? err.stack : err);
 		return 'Failed to send query due to error: ' + err.stack ? err.stack : err;
 	}).catch((err) => {
-		logger.error('Failed to end to end test with error:' + err.stack ? err.stack :
-			err);
-		return 'Failed to end to end test with error:' + err.stack ? err.stack :
-			err;
+		logger.error('Failed to end to end test with error:' + err.stack ? err.stack : err);
+		return 'Failed to end to end test with error:' + err.stack ? err.stack : err;
 	});
 };
 var getBlockByNumber = function(peer, blockNumber, username, org) {

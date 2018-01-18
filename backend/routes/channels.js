@@ -7,8 +7,8 @@ const invoke = require('../app/invoke-transaction.js');
 const helper = require('../app/helper.js');
 const query = require('../app/query.js');
 
-const chaincodeName = 'ndahandler9';
-const chaincodeVersion = 'v1';
+const chaincodeName = 'ndahandler';
+const chaincodeVersion = 'v0';
 
 router.get('/', function(req, res) {
   const channels = {};
@@ -27,6 +27,7 @@ router.post('/:channel_name/docs', function(req, res) {
 
   const form = new formidable.IncomingForm();
   form.parse(req, function(err, fields, files) {
+    console.log('files', files);
     const oldpath = files.file.path,
           file_size = files.file.size,
           file_ext = files.file.name.split('.').pop(),
@@ -36,7 +37,6 @@ router.post('/:channel_name/docs', function(req, res) {
     fs.readFile(oldpath, function(err, data) {
       query.getInstalledChaincodes('peer1', 'instantiated', req.username, req.orgname)
         .then(function(message) {
-          console.log(message);
           if (!message.includes(chaincodeName)) {
             return instantiate.instantiateChaincode(channelName, chaincodeName, chaincodeVersion, ["a","100","b","200"], req.orgname);
           }
@@ -54,7 +54,7 @@ router.post('/:channel_name/docs', function(req, res) {
           res.json({'success': false, 'err': error});
         })
     });
-  });
+ });
 });
 
 router.get('/:channel_name/docs', function(req, res) {
@@ -63,9 +63,8 @@ router.get('/:channel_name/docs', function(req, res) {
 
   query.queryChaincode('peer1', channelName, chaincodeName, ['doc'], functionName, req.username, req.orgname)
     .then(function(message) {
-      console.log('====> message', message);
       res.status(200);
-      res.json({'success': true});
+      res.json({'success': true, 'base64': message});
     })
     .catch(function(err) {
       res.status(403);
